@@ -2,6 +2,7 @@ from flask import render_template, request
 from epi_checker import app
 import requests
 import json
+from epi_checker.core import separate_data, adult_lenses
 
 print(app.config)
 
@@ -50,7 +51,7 @@ def get_all_preproc():
     #### testing all Ids
     list_of_ids = []
     x = requests.get(
-        "https://fosps.gravitatehealth.eu/epi/api/fhir/Composition?&category=http://hl7.eu/fhir/ig/gravitate-health/CodeSystem/epicategory-cs|R&_elements=identifier,title"
+        "https://fosps.gravitatehealth.eu/epi/api/fhir/Composition?category=http://hl7.eu/fhir/ig/gravitate-health/CodeSystem/epicategory-cs|R&_elements=identifier,title"
     )
     raw_data = x.json()
     for r in raw_data["entry"]:
@@ -81,3 +82,23 @@ def get_all_bundle_preproc():
         list_of_ids.append(ent)
     print(list_of_ids)
     return json.dumps(list_of_ids)
+
+
+@app.route("/focusing/focus/<bundleid>", methods=["POST"])
+def focusing(bundleid):
+    preprocessor = request.args.get("preprocessors", "")
+    lenses = request.args.get("lenses", "")
+    patientIdentifier = request.args.get("patientIdentifier", "")
+    print(preprocessor, lenses, patientIdentifier)
+    if preprocessor == "" or lenses == "" or patientIdentifier == "":
+        return "Error: missing parameters", 404
+    if preprocessor not in ["preprocessing-service-manual"]:
+        return "Error: preprocessor not supported", 404
+
+    if lenses not in ["lens-selector-mvp3_adult"]:
+        return "Error: lens not supported", 404
+
+    preprocessed_bundle, ips = separate_data(bundleid, patientIdentifier)
+    # print(bundleid)
+
+    return adult_lenses(preprocessed_bundle, ips)
