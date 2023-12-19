@@ -12,23 +12,81 @@
         crossorigin="anonymous"></script>
 
 </head>
-{% if result=="" %}
 
 <body>
-   
-    <form action="/" method="post">
-        <label for="url">Url</label><br>
-        <input type="text" id="url" name="url" value=""><br>
+
+
+<body class="d-flex flex-column min-vh-100">
+    <div class="container">
+  <h1> G-lens Tester</h1>
+  <br/>
+<br/>
+<br/>
+  <h2>Quick reference</h2>
+<p>Please indicate the epi id, the IPS and the lens to use to get a focused version of the ePI.</p>
+
+
+    <form action="/focused" method="post">
+        <label for="epi">ePI ID</label><br>
+        <select id="epi" name="epi">
+
+            <!-- Options will be filled by JavaScript -->
+        </select><br>
+        <label for="ips">Choose IPS Identifier</label><br>
+        <select id="ips" name="ips">
+            <option value="alicia-1">alicia-1</option>
+            <option value="Cecilia-1">Cecilia-1</option>
+            <option value="helen-1">helen-1</option>
+            <option value="maria-1">maria-1</option>
+            <option value="ips-2">ips-2</option>
+            <option value="Matilda-1">Matilda-1</option>
+            <option value="Pedro-1">Pedro-1</option>
+            <option value="0101010101">0101010101</option>
+
+        </select><br>
+       
+        <label for="lenses">Lenses</label><br>
+        <select id="lenses" name="lenses">
+            <option value="">All</option>
+
+            <!-- Options will be filled by JavaScript -->
+        </select>
+        <!-- Other form elements -->
      
         <input type="submit" value="Submit">
       </form>
-    </body>
-      {% else %}
-<head></head><body>
-      {{result| safe }}
-    </body>
-    {% endif %}
 
+    </div>
+    </body>
+
+    <script>document.addEventListener('DOMContentLoaded', function() {
+        fetch('https://fosps.gravitatehealth.eu/focusing/lenses')
+            .then(response => response.json()) // assuming the response is in JSON format
+            .then(data => {
+                const dropdown = document.getElementById('lenses');
+                data["lenses"].forEach(item => {
+                    const option = document.createElement('option');
+                    option.value = item; // Adjust depending on your data structure
+                    option.textContent = item; // Adjust depending on your data structure
+                    dropdown.appendChild(option);
+                });
+            })
+            .catch(error => console.error('Error:', error));
+    });</script>
+    <script>document.addEventListener('DOMContentLoaded', function() {
+        fetch('/get_all_bundles_with_preproc')
+            .then(response => response.json()) // assuming the response is in JSON format
+            .then(data => {
+                const dropdown = document.getElementById('epi');
+                data.forEach(item => {
+                    const option = document.createElement('option');
+                    option.value = item.id; // Adjust depending on your data structure
+                    option.textContent = item.id; // Adjust depending on your data structure
+                    dropdown.appendChild(option);
+                });
+            })
+            .catch(error => console.error('Error:', error));
+    });</script>
 
 
 </html>
