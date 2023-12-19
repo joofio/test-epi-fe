@@ -1,4 +1,4 @@
-from flask import render_template, request
+from flask import render_template, request, jsonify
 from epi_checker import app
 import requests
 import json
@@ -100,5 +100,5 @@ def focusing(bundleid):
 
     preprocessed_bundle, ips = separate_data(bundleid, patientIdentifier)
     # print(bundleid)
-
-    return adult_lenses(preprocessed_bundle, ips)
+    f_bundle = adult_lenses(preprocessed_bundle, ips)
+    return jsonify(f_bundle)
