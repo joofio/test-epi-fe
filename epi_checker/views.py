@@ -2,7 +2,7 @@ from flask import render_template, request, jsonify
 from epi_checker import app
 import requests
 import json
-from epi_checker.core import separate_data, adult_lenses
+from epi_checker.core import separate_data, adult_lenses, SERVER_URL
 
 print(app.config)
 
@@ -20,7 +20,7 @@ def render_focused():
     print(lens, ips, epi)
     headers = {"Accept": "application/json"}
 
-    BASE_URL = "https://fosps.gravitatehealth.eu/focusing/focus/"
+    BASE_URL = SERVER_URL + "focusing/focus/"
     # bundlepackageleaflet-2d49ae46735143c1323423b7aea24165?preprocessors=preprocessing-service-manual&lenses=lens-selector-mvp2_pregnancy&patientIdentifier=alicia-1
     focusing_url = (
         BASE_URL
@@ -51,7 +51,8 @@ def get_all_preproc():
     #### testing all Ids
     list_of_ids = []
     x = requests.get(
-        "https://fosps.gravitatehealth.eu/epi/api/fhir/Composition?category=http://hl7.eu/fhir/ig/gravitate-health/CodeSystem/epicategory-cs|R&_elements=identifier,title"
+        SERVER_URL
+        + "epi/api/fhir/Composition?category=http://hl7.eu/fhir/ig/gravitate-health/CodeSystem/epicategory-cs|R&_elements=identifier,title"
     )
     raw_data = x.json()
     for r in raw_data["entry"]:
@@ -69,9 +70,7 @@ def get_all_preproc():
 def get_all_bundle_preproc():
     #### testing all Ids
     list_of_ids = []
-    x = requests.get(
-        "https://fosps.gravitatehealth.eu/epi/api/fhir/Bundle?type=document"
-    )
+    x = requests.get(SERVER_URL + "epi/api/fhir/Bundle?type=document")
     raw_data = x.json()
     for r in raw_data["entry"]:
         ent = {}

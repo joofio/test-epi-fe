@@ -5,20 +5,24 @@ import json
 import copy
 import uuid
 
+SERVER_URL = "https://fosps.gravitatehealth.eu/"  # prod
+SERVER_URL = "https://gravitate-health.lst.tfo.upm.es/"  # dev
+
 
 def separate_data(bundleid, patientIdentifier):
-    x = requests.get("https://fosps.gravitatehealth.eu/epi/api/fhir/Bundle/" + bundleid)
+    x = requests.get(SERVER_URL + "epi/api/fhir/Bundle/" + bundleid)
     raw_data = x.json()
     subject = raw_data["entry"][0]["resource"]["subject"][0]["reference"]
     print(subject)
     preproc_ids = requests.get(
-        "https://fosps.gravitatehealth.eu/epi/api/fhir/Composition?subject="
+        SERVER_URL
+        + "epi/api/fhir/Composition?subject="
         + subject
         + "&category=http://hl7.eu/fhir/ig/gravitate-health/CodeSystem/epicategory-cs|P&_language=en"
     )
     lkid = preproc_ids.json()["entry"][0]["resource"]["id"]
     preproc_bundle = requests.get(
-        "https://fosps.gravitatehealth.eu/epi/api/fhir/Bundle?type=document&_count=100"
+        SERVER_URL + "epi/api/fhir/Bundle?type=document&_count=100"
     )
 
     for entry in preproc_bundle.json()["entry"]:
@@ -28,18 +32,15 @@ def separate_data(bundleid, patientIdentifier):
                 return_bundle = entry["resource"]
                 break
     ips_id_bundle = requests.get(
-        "https://fosps.gravitatehealth.eu/ips/api/fhir/Composition?subject.identifier="
+        SERVER_URL
+        + "ips/api/fhir/Composition?subject.identifier="
         + patientIdentifier
         + "&_elements=identifier,id"
     )
     # print(ips_id_bundle.json())
     ips_id = ips_id_bundle.json()["entry"][0]["resource"]["id"]
     # print(ips_id)
-    ips = requests.get(
-        "https://fosps.gravitatehealth.eu/ips/api/fhir/Composition/"
-        + ips_id
-        + "/$document"
-    )
+    ips = requests.get(SERVER_URL + "ips/api/fhir/Composition/" + ips_id + "/$document")
     return return_bundle, ips.json()
 
 
