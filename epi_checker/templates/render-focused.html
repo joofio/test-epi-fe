@@ -19,19 +19,72 @@
               background-color: lightgray;
               color: grey;
           }
+          .column {
+  float: left; /* This makes the column float to the left */
+  width: 50%; /* Adjust the width as necessary */
+}
+
           </style>
 </head>
 
 <body>
-    <h1>{{result.title}}</h1>
+    <div class="container">
+    {% if result %}
+    <div class="container">
+     
+            <form action="/focused" method="post">
+
+                <select id="ips" name="ips" style="display:None;">
+                    <option value="{{identifier}}"></option selected>
+                    </select>
+                    <select id="code" name="code" style="display:None;">
+                        <option value="{{code}}"></option selected>
+                        </select>
+
+            <label for="lenses">Lenses</label><br>
+            <select id="lenses" name="lenses" multiple>
+                <option value="">All</option>
+    
+                <!-- Options will be filled by JavaScript -->
+            </select>
+            <!-- Other form elements -->
+         
+            <input type="submit" value="Submit">
+          </form>
+
+      </div>
+<hr>
+
+    <h2>{{result.title}}</h2>
 
 {% for divs in result.div %}
-<h2> {{divs[0] | safe}} </h2>
-<div>{{divs[1] | safe}}</div>
-{% endfor %}
+<h3> {{divs[0] | safe}} </h3>
+<hr>
 
+<div>{{divs[1] | safe}}</div>
+<hr>
+
+{% endfor %}
+{% else %}
+<h2> Error getting ePI</h2>
+{% endif %}
+</div>
     </body>
 
+  <script>document.addEventListener('DOMContentLoaded', function() {
+        fetch('https://fosps.gravitatehealth.eu/focusing/lenses')
+            .then(response => response.json()) // assuming the response is in JSON format
+            .then(data => {
+                const dropdown = document.getElementById('lenses');
+                data["lenses"].forEach(item => {
+                    const option = document.createElement('option');
+                    option.value = item; // Adjust depending on your data structure
+                    option.textContent = item; // Adjust depending on your data structure
+                    dropdown.appendChild(option);
+                });
+            })
+            .catch(error => console.error('Error:', error));
+    });</script>
 
 
 </html>

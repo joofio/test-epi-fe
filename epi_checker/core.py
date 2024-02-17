@@ -6,7 +6,7 @@ import copy
 import uuid
 
 SERVER_URL = "https://fosps.gravitatehealth.eu/"  # prod
-SERVER_URL = "https://gravitate-health.lst.tfo.upm.es/"  # dev
+# SERVER_URL = "https://gravitate-health.lst.tfo.upm.es/"  # dev
 
 
 def separate_data(bundleid, patientIdentifier):
@@ -135,3 +135,24 @@ def adult_lenses(preprocessed_bundle, ips):
         return focused_bundle
     else:
         return preprocessed_bundle
+
+
+def parse_ips_med(ips):
+    """
+    Parses the IPS to get the medication list
+    """
+    medication = []
+    # print(ips)
+    result = evaluate(
+        ips, "Bundle.entry.where(resource.resourceType=='MedicationStatement')", []
+    )
+    for r in result:
+        med_ref = r["resource"]["medicationReference"]["reference"]
+        #  print(med_ref)
+        med = evaluate(ips, "Bundle.entry.where(fullUrl=='" + med_ref + "')", [])
+        # print("result", med)
+        med_identifier = med[0]["resource"]["code"]["coding"][0]["code"]
+        med_name = med[0]["resource"]["code"]["coding"][0]["display"]
+
+        medication.append({"code": med_identifier, "name": med_name})
+    return medication
